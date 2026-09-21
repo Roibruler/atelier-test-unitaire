@@ -50,7 +50,7 @@
         </dependency>
     </dependencies>
 
-    <build>
+        <build>
         <finalName>${project.artifactId}</finalName>
         <plugins>
             <!-- Compile le code source en byte code Java 21 -->
@@ -60,11 +60,41 @@
                 <version>3.13.0</version>
             </plugin>
 
-            <!-- Exécute les tests unitaires (phase "test") et génère les rapports Surefire -->
+            <!-- Configuration optimisée de JaCoCo -->
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>0.8.12</version>
+                <executions>
+                    <execution>
+                        <id>prepare-agent</id>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                        <!-- Stocke l'argument de l'agent dans la variable argLine -->
+                        <configuration>
+                            <propertyName>surefireArgLine</propertyName>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>report</id>
+                        <phase>test</phase>
+                        <goals>
+                            <goal>report</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!-- Exécute les tests unitaires (phase "test") et reçoit l'agent JaCoCo -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>3.2.5</version>
+                <configuration>
+                    <!-- Injecte l'agent JaCoCo pendant l'exécution des tests -->
+                    <argLine>${surefireArgLine}</argLine>
+                </configuration>
             </plugin>
         </plugins>
     </build>
